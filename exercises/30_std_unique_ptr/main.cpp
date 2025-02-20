@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <iostream>
 
 // READ: `std::unique_ptr` <https://zh.cppreference.com/w/cpp/memory/unique_ptr>
 
@@ -46,15 +47,15 @@ int main(int argc, char **argv) {
 
     drop(drop(reset(drop(reset(reset(nullptr))))));
     problems[2] = std::move(RECORDS);
-
+    // std::cout<< problems[1][0]<< problems[1][1];
     // ---- 不要修改以上代码 ----
 
     std::vector<const char *> answers[]{
         {"fd"},
         // TODO: 分析 problems[1] 中资源的生命周期，将记录填入 `std::vector`
         // NOTICE: 此题结果依赖对象析构逻辑，平台相关，提交时以 CI 实际运行平台为准
-        {"", "", "", "", "", "", "", ""},
-        {"", "", "", "", "", "", "", ""},
+        {"d","ffr"},
+        {"d", "d","r"},
     };
 
     // ---- 不要修改以下代码 ----

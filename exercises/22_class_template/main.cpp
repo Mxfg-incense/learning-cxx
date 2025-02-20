@@ -10,6 +10,8 @@ struct Tensor4D {
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
+        std::memcpy(shape, shape_, 4 * sizeof(unsigned int));
+        size = shape[0] * shape[1] * shape[2] * shape[3];
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -28,6 +30,41 @@ struct Tensor4D {
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
         // TODO: 实现单向广播的加法
+        for (int i = 0; i < 4; ++i) {
+            if (shape[i] != others.shape[i] && others.shape[i] != 1) {
+                throw std::invalid_argument("Shapes are not broadcast-compatible.");
+            }
+        }
+
+        // 执行加法，按元素对应相加
+        unsigned int size = 1;
+        for (int i = 0; i < 4; ++i) {
+            size *= shape[i];
+        }
+
+        for (unsigned int i = 0; i < size; ++i) {
+            unsigned int indices[4];
+            unsigned int tmp = i;
+            for (int j = 3; j >= 0; --j) {
+                indices[j] = tmp % shape[j];
+                tmp /= shape[j];
+            }
+
+            // 对于“广播”维度，`others` 的某些维度可能是 1
+            for (int j = 0; j < 4; ++j) {
+                if (others.shape[j] == 1) {
+                    indices[j] = 0;  // 将索引映射到 `others` 的第一个元素
+                }
+            }
+
+            // 索引到 `others` 数据并加到 `this` 数据
+            unsigned int others_index = 0;
+            for (int j = 0; j < 4; ++j) {
+                others_index = others_index * others.shape[j] + indices[j];
+            }
+
+            data[i] += others.data[others_index];
+        }
         return *this;
     }
 };
